@@ -1,20 +1,18 @@
 import React, { FC, useRef } from 'react';
 
+import { Ionicons } from '@expo/vector-icons';
+
 import { Image, ViewStyle, StyleSheet, Pressable } from 'react-native';
 
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated';
 
-import { useTheme } from '@react-navigation/native';
-
-import { Ionicons } from '@expo/vector-icons';
-
-import { pColor } from 'utils';
+import { ImageLoading, Pressable as CustomPressable } from 'components';
 
 import { ImageLRefProps } from 'types';
 
-import { ImageLoading, Pressable as CustomPressable } from 'components';
-
 import { savedStyles } from 'styles';
+
+import { colors } from 'consts';
 
 type Props = {
 	image: string;
@@ -31,8 +29,6 @@ export const SaveImageItems: FC<Props> = ({
 	containerStyle,
 	containerPressed,
 }) => {
-	const { dark } = useTheme();
-
 	const imageRef = useRef<ImageLRefProps>(null);
 
 	return (
@@ -72,7 +68,7 @@ export const SaveImageItems: FC<Props> = ({
 						size={20}
 						style={{}}
 						name={'bookmark'}
-						color={pColor(dark).text}
+						color={colors.dark.text}
 					/>
 				</CustomPressable>
 			</Pressable>
