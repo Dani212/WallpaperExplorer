@@ -4,17 +4,13 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons';
 
 import { View, StyleSheet, Image } from 'react-native';
 
-import { useTheme } from '@react-navigation/native';
-
 import Animated from 'react-native-reanimated';
 
 import * as Linking from 'expo-linking';
 
 import { ImageLoading, Pressable, Text } from 'components';
 
-import { height, width } from 'consts';
-
-import { pColor } from 'utils';
+import { colors, height, width } from 'consts';
 
 import { ImageLRefProps } from 'types';
 import { homeStyles } from 'styles';
@@ -41,8 +37,6 @@ const ImageListItem: FC<Props> = ({
 	onSavePress,
 	onSharePress,
 }) => {
-	const { dark } = useTheme();
-
 	const initialLoad = useRef(false);
 
 	const imageRef = useRef<ImageLRefProps>(null);
@@ -110,7 +104,11 @@ const ImageListItem: FC<Props> = ({
 					onPress={morePress}
 					style={homeStyles.sideBarItem}
 				>
-					<Ionicons color={'#fff'} size={20} name="ellipsis-horizontal" />
+					<Ionicons
+						color={colors.dark.text}
+						size={20}
+						name="ellipsis-horizontal"
+					/>
 					<Text btnColor textSize="small" style={{ fontWeight: 'bold' }}>
 						More
 					</Text>
@@ -121,7 +119,7 @@ const ImageListItem: FC<Props> = ({
 					onPress={onSharePress}
 					style={homeStyles.sideBarItem}
 				>
-					<FontAwesome color={'#fff'} size={20} name="share" />
+					<FontAwesome color={colors.dark.text} size={20} name="share" />
 
 					<Text btnColor textSize="small" style={{ fontWeight: 'bold' }}>
 						Share
@@ -134,7 +132,7 @@ const ImageListItem: FC<Props> = ({
 					style={homeStyles.sideBarItem}
 				>
 					<Ionicons
-						color={pColor(dark).text}
+						color={colors.dark.text}
 						size={20}
 						name="resize"
 						style={{}}
@@ -153,7 +151,7 @@ const ImageListItem: FC<Props> = ({
 					<Ionicons
 						size={20}
 						style={{}}
-						color={pColor(dark).text}
+						color={colors.dark.text}
 						name={saved ? 'bookmark' : 'bookmark-outline'}
 					/>
 					<Text btnColor textSize="small" style={{ fontWeight: 'bold' }}>
