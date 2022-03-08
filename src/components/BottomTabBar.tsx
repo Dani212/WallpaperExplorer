@@ -94,7 +94,10 @@ export const BottomTabBar = forwardRef<ImageLRefProps, Props>(
 					<Pressable
 						ripple_raduis={24}
 						onPress={home}
-						style={styles.bottomTabBarIconContainer}
+						style={[
+							styles.bottomTabBarIconContainer,
+							{ backgroundColor: pColor(dark).view },
+						]}
 					>
 						<Ionicons
 							color={pColor(dark).text}
@@ -108,7 +111,10 @@ export const BottomTabBar = forwardRef<ImageLRefProps, Props>(
 					<Pressable
 						ripple_raduis={24}
 						onPress={save}
-						style={styles.bottomTabBarIconContainer}
+						style={[
+							styles.bottomTabBarIconContainer,
+							{ backgroundColor: pColor(dark).view },
+						]}
 					>
 						<Ionicons
 							size={24}
