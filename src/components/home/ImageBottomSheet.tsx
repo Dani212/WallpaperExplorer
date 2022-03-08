@@ -95,7 +95,10 @@ export const ImageBottomSheet = forwardRef<ImageBSRefPorps, Props>(
 				<Animated.View
 					entering={SlideInDown}
 					exiting={SlideOutDown}
-					style={[bsStyles.bottomSheetContent, { backgroundColor: '#222222' }]}
+					style={[
+						bsStyles.bottomSheetContent,
+						{ backgroundColor: pColor(dark).view },
+					]}
 				>
 					<Text style={{ marginStart: 18, marginTop: 10, marginBottom: 16 }}>
 						Author
