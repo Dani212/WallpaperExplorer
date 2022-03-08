@@ -25,7 +25,7 @@ import {
 
 import { ImageDownLoadEvents, ImageLoading, Pressable, Text } from 'components';
 
-import { height } from 'consts';
+import { colors, height } from 'consts';
 
 import { pColor } from 'utils';
 import { StatusBar } from 'expo-status-bar';
@@ -91,7 +91,7 @@ export default function ImageScreen({
 		}
 
 		const assest = await MediaLibrary.createAssetAsync(uri);
-		await MediaLibrary.createAlbumAsync('Photo explore', assest);
+		await MediaLibrary.createAlbumAsync('Wallpaper explorer', assest);
 	};
 
 	const downloadImages = async (uri: string, name: string) => {
@@ -177,7 +177,7 @@ export default function ImageScreen({
 						position: 'absolute',
 						alignItems: 'center',
 						justifyContent: 'center',
-						backgroundColor: '#222',
+						backgroundColor: pColor(dark).view,
 					}}
 					onPress={() => navigation.goBack()}
 				>
@@ -233,7 +233,7 @@ export default function ImageScreen({
 						style={styles.sideBarItem}
 					>
 						<Ionicons
-							color={pColor(dark).text}
+							color={colors.dark.text}
 							size={20}
 							name="resize"
 							style={{}}
@@ -252,7 +252,7 @@ export default function ImageScreen({
 						<Ionicons
 							size={20}
 							style={{}}
-							color={pColor(dark).text}
+							color={colors.dark.text}
 							name={imageIsSaved ? 'bookmark' : 'bookmark-outline'}
 						/>
 						<Text btnColor textSize="small" style={{ fontWeight: 'bold' }}>

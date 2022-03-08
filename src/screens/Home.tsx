@@ -133,7 +133,7 @@ export default function HomeScreen() {
 		}
 
 		const assest = await MediaLibrary.createAssetAsync(uri);
-		await MediaLibrary.createAlbumAsync('Photo explore', assest);
+		await MediaLibrary.createAlbumAsync('Wallpaper explorer', assest);
 	};
 
 	const downloadImages = async (uri: string, name: string) => {
