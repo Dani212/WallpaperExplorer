@@ -1,0 +1,41 @@
+export const imageDummyItem = {
+	id: '',
+	created_at: '',
+	updated_at: '',
+	width: 0,
+	height: 0,
+	color: '',
+	urls: {
+		raw: '',
+		full: '',
+		regular: '',
+		small: '',
+		thumb: '',
+		small_s3: '',
+	},
+	links: {
+		self: '',
+		html: '',
+		download: '',
+		download_location: '',
+	},
+	user: {
+		id: '',
+		updated_at: '',
+		username: '',
+		name: '',
+		first_name: '',
+		last_name: '',
+		portfolio_url: '',
+		bio: '',
+		links: {
+			html: '',
+		},
+		profile_image: {
+			small: '',
+			medium: '',
+			large: '',
+		},
+	},
+	imageIsSaved: false,
+};
