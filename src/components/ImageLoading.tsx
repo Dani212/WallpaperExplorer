@@ -1,8 +1,11 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 
+import { useTheme } from '@react-navigation/native';
+
 import { View, ActivityIndicator, ViewStyle } from 'react-native';
 
 import { ImageLRefProps } from 'types';
+import { pColor } from 'utils';
 
 type Props = {
 	containerStyle?: ViewStyle;
@@ -11,6 +14,8 @@ type Props = {
 // eslint-disable-next-line react/display-name
 export const ImageLoading = forwardRef<ImageLRefProps, Props>(
 	({ containerStyle }, ref) => {
+		const { dark } = useTheme();
+
 		const [isOpen, setIsOpen] = useState(false);
 
 		const open = () => {
@@ -43,7 +48,7 @@ export const ImageLoading = forwardRef<ImageLRefProps, Props>(
 					containerStyle,
 				]}
 			>
-				<ActivityIndicator color={'#fff'} size="large" />
+				<ActivityIndicator color={pColor(dark).text} size="large" />
 			</View>
 		);
 	}
