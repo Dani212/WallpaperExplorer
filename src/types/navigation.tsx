@@ -31,6 +31,14 @@ export type RootTabParamList = {
 	SavedImageTab: undefined;
 };
 
+export type HomeStackParamList = {
+	HomeScreen: undefined;
+	ImagePreviewScreen: {
+		id: string;
+		image: string;
+	};
+};
+
 export type RootTabScreenProps<Screen extends keyof RootTabParamList> =
 	CompositeScreenProps<
 		BottomTabScreenProps<RootTabParamList, Screen>,

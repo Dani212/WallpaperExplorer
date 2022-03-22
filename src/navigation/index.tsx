@@ -4,27 +4,35 @@
  *
  */
 
+import React, { useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
 	NavigationContainer,
 	DefaultTheme,
 	DarkTheme,
 } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import * as React from 'react';
-import { ColorSchemeName } from 'react-native';
-
-import Colors from 'consts/Colors';
-import useColorScheme from 'hooks/useColorScheme';
-import ImageScreen from 'screens/ImageScreen';
-import NotFoundScreen from 'screens/NotFoundScreen';
-import HomeScreen from 'screens/Home';
-import SaveImageScreen from 'screens/SaveImage';
-import { RootStackParamList, RootTabParamList } from 'types';
-import LinkingConfiguration from './LinkingConfiguration';
 import { useDispatch } from 'react-redux';
-import { useEffect } from 'react';
+import { ColorSchemeName } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+// import { createSharedElementStackNavigator } from 'react-navigation-shared-element';
+
+import LinkingConfiguration from './LinkingConfiguration';
+import ImagePreviewScreen from 'screens/ImagePreview';
+import NotFoundScreen from 'screens/NotFoundScreen';
+import useColorScheme from 'hooks/useColorScheme';
+import SaveImageScreen from 'screens/SaveImage';
+import ImageScreen from 'screens/ImageScreen';
+import HomeScreen from 'screens/Home';
+import Colors from 'consts/Colors';
+
 import { fetchSaveImageData } from 'reduxStore/reducer';
+import {
+	HomeStackParamList,
+	RootStackParamList,
+	RootTabParamList,
+} from 'types';
+import { createSharedElementStackNavigator } from 'react-navigation-shared-element';
+import { StackNavigationOptions } from '@react-navigation/stack';
 
 export default function Navigation({
 	colorScheme,
@@ -95,7 +103,7 @@ function BottomTabNavigator() {
 		>
 			<BottomTab.Screen
 				name="HomeTab"
-				component={HomeScreen}
+				component={HomeStackNavigation}
 				options={() => ({
 					title: 'Tab One',
 					headerShown: false,
@@ -111,5 +119,46 @@ function BottomTabNavigator() {
 				}}
 			/>
 		</BottomTab.Navigator>
+	);
+}
+
+const HomeStack = createSharedElementStackNavigator<HomeStackParamList>();
+const options: StackNavigationOptions = {
+	headerShown: false,
+	headerBackTitleVisible: false,
+	cardStyleInterpolator: ({ current: { progress } }) => {
+		return {
+			cardStyle: {
+				opacity: progress,
+			},
+		};
+	},
+};
+function HomeStackNavigation() {
+	return (
+		<HomeStack.Navigator
+			// initialRouteName="ImagePreviewScreen"
+			screenOptions={{ headerShown: false }}
+		>
+			<HomeStack.Screen name="HomeScreen" component={HomeScreen} />
+			<HomeStack.Screen
+				name="ImagePreviewScreen"
+				component={ImagePreviewScreen}
+				options={options}
+				sharedElements={(route, otherRoute, showing) => {
+					const { id } = route.params;
+					if (otherRoute.name === 'HomeScreen' && showing) {
+						return [
+							{
+								id: `item.${id}.photo`,
+								animation: 'fade-in',
+								resize: 'none',
+								align: 'center-center',
+							},
+						];
+					}
+				}}
+			/>
+		</HomeStack.Navigator>
 	);
 }
