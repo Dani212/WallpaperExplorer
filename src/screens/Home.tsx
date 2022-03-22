@@ -4,6 +4,8 @@ import * as FileSystem from 'expo-file-system';
 
 import * as MediaLibrary from 'expo-media-library';
 
+import * as IntentLauncher from 'expo-intent-launcher';
+
 import {
 	View,
 	Share,
@@ -12,9 +14,12 @@ import {
 	RefreshControl,
 	NativeScrollEvent,
 	NativeSyntheticEvent,
+	Linking,
 } from 'react-native';
 
 import axios from 'axios';
+
+import Constants from 'expo-constants';
 
 import { height, width } from 'consts';
 
@@ -26,6 +31,7 @@ import {
 	ImageLoading,
 	Text,
 	Button,
+	PermRequestModal,
 } from 'components';
 
 import ImageListItem from 'components/home/ImageListItem';
@@ -60,6 +66,8 @@ export default function HomeScreen() {
 	const isLoadingMore = useRef(false);
 
 	const downloadInfo = useRef({ uri: '', name: '' });
+
+	const permRequestRef = useRef<ImageLRefProps>(null);
 
 	const bottomSheetRef = useRef<ImageBSRefPorps>(null);
 
@@ -197,6 +205,28 @@ export default function HomeScreen() {
 		}
 	};
 
+	const okayPress = () => {
+		permRequestRef.current?.close();
+
+		const pkg = Constants.manifest?.releaseChannel
+			? Constants.manifest.android?.package
+			: 'host.exp.exponent';
+
+		if (Platform.OS === 'android') {
+			IntentLauncher.startActivityAsync(
+				IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS,
+				{ data: 'package:' + pkg }
+			);
+		} else {
+			Linking.openURL('app-settings:');
+		}
+	};
+
+	const closeDownLoadEvents = () => {
+		setDownloadFailed(false);
+		setIsDownloading(false);
+	};
+
 	const onRefresh = () => {
 		if (isRefreshing) return;
 
@@ -318,11 +348,14 @@ export default function HomeScreen() {
 
 				<ImageDownLoadEvents
 					isLoading={isDownloading}
+					close={closeDownLoadEvents}
 					downloadFailed={downloadFailed}
 					onBtnPress={() =>
 						downloadImages(downloadInfo.current.uri, downloadInfo.current.name)
 					}
 				/>
+
+				<PermRequestModal ref={permRequestRef} okayPress={okayPress} />
 			</>
 		</HomeContainer>
 	);
