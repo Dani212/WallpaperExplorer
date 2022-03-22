@@ -5,17 +5,21 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { Text } from 'components/Text';
+
+import { Pressable } from 'components/Pressable';
 import { Button } from 'components/Button';
 import { pColor } from 'utils';
 import { width } from 'consts';
 
 type Props = {
+	close: () => void;
 	isLoading: boolean;
 	downloadFailed: boolean;
 	onBtnPress?: () => void;
 };
 
 export const ImageDownLoadEvents: FC<Props> = ({
+	close,
 	isLoading,
 	onBtnPress,
 	downloadFailed,
@@ -34,6 +38,8 @@ export const ImageDownLoadEvents: FC<Props> = ({
 				position: 'absolute',
 			}}
 		>
+			<Pressable style={{ ...StyleSheet.absoluteFillObject }} onPress={close} />
+
 			{isLoading ? (
 				<View
 					style={{
