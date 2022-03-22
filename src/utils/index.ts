@@ -1,6 +1,4 @@
 import { colors } from 'consts';
-import { useSelector } from 'react-redux';
-import { SavedItemsState } from 'reduxStore/reducer';
 import { ImageResponeProps } from 'types/imagesExplore';
 /**
  *
@@ -13,7 +11,7 @@ export const formateImageDataResponse = (
 	// : string[]
 ) => {
 	// const savedItems = useSelector(SavedItemsState);
-	console.log(savedItems.length, 'test');
+	// console.log(savedItems.length, 'test');
 	const result = response.map((value) => {
 		return {
 			id: value.id,
