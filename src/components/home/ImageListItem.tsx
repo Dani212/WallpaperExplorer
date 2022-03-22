@@ -14,6 +14,7 @@ import { colors, height, width } from 'consts';
 
 import { ImageLRefProps } from 'types';
 import { homeStyles } from 'styles';
+import ImageZoom from 'react-native-image-pan-zoom';
 
 type Props = {
 	//
@@ -87,17 +88,36 @@ const ImageListItem: FC<Props> = ({
 				ref={imageRef}
 				containerStyle={{ ...StyleSheet.absoluteFillObject }}
 			/>
-
-			<Image
-				source={{ uri: image }}
-				resizeMode={resizeImage}
-				onLoadStart={() => imageRef.current?.open()}
-				onLoadEnd={() => imageRef.current?.close()}
-				style={{
-					flex: 1,
-				}}
-			/>
-
+			{resizeImage === 'contain' ? (
+				<ImageZoom
+					// panToMove={false}
+					cropWidth={width}
+					cropHeight={height}
+					imageWidth={width}
+					style={{ flex: 1, zIndex: 10 }}
+					imageHeight={height}
+				>
+					<Image
+						source={{ uri: image }}
+						resizeMode={resizeImage}
+						onLoadStart={() => imageRef.current?.open()}
+						onLoadEnd={() => imageRef.current?.close()}
+						style={{
+							flex: 1,
+						}}
+					/>
+				</ImageZoom>
+			) : (
+				<Image
+					source={{ uri: image }}
+					resizeMode={resizeImage}
+					onLoadStart={() => imageRef.current?.open()}
+					onLoadEnd={() => imageRef.current?.close()}
+					style={{
+						flex: 1,
+					}}
+				/>
+			)}
 			<Animated.View style={[homeStyles.sideBarContainer]}>
 				<Pressable
 					ripple_raduis={30}
