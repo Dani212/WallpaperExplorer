@@ -8,6 +8,10 @@ import { Ionicons, FontAwesome } from '@expo/vector-icons';
 
 import Animated from 'react-native-reanimated';
 
+import Constants from 'expo-constants';
+
+import * as IntentLauncher from 'expo-intent-launcher';
+
 import * as FileSystem from 'expo-file-system';
 
 import * as MediaLibrary from 'expo-media-library';
@@ -23,9 +27,15 @@ import {
 	RootStackScreenProps,
 } from 'types';
 
-import { ImageDownLoadEvents, ImageLoading, Pressable, Text } from 'components';
+import {
+	ImageDownLoadEvents,
+	PermRequestModal,
+	ImageLoading,
+	Pressable,
+	Text,
+} from 'components';
 
-import { colors, height } from 'consts';
+import { colors, height, width } from 'consts';
 
 import { pColor } from 'utils';
 import { StatusBar } from 'expo-status-bar';
@@ -36,6 +46,7 @@ import {
 } from 'reduxStore/reducer';
 import { useDispatch } from 'react-redux';
 import { HomeContainer } from 'components/home';
+import ImageZoom from 'react-native-image-pan-zoom';
 
 const styles = StyleSheet.create({
 	sideBarContainer: {
@@ -71,6 +82,8 @@ export default function ImageScreen({
 
 	const imageRef = useRef<ImageLRefProps>(null);
 
+	const permRequestRef = useRef<ImageLRefProps>(null);
+
 	const bottomSheetRef = useRef<ImageBSRefPorps>(null);
 
 	const downloadInfo = useRef({ uri: '', name: '' });
@@ -83,18 +96,21 @@ export default function ImageScreen({
 
 	const [imageIsSaved, setImageIsSaved] = useState(true);
 
-	const saveToMedia = async (uri: string) => {
-		const statuss = await MediaLibrary.requestPermissionsAsync();
+	// const saveToMedia = async (uri: string) => {
+	//
+	// };
 
-		if (!statuss.granted) {
+	const downloadImages = async () => {
+		const uri: string = params.links.download;
+		const name: string = params.id;
+
+		const status = await MediaLibrary.requestPermissionsAsync();
+
+		if (!status.granted) {
+			permRequestRef.current?.open();
 			return;
 		}
 
-		const assest = await MediaLibrary.createAssetAsync(uri);
-		await MediaLibrary.createAlbumAsync('Wallpaper explorer', assest);
-	};
-
-	const downloadImages = async (uri: string, name: string) => {
 		downloadInfo.current = { uri, name };
 
 		try {
@@ -105,7 +121,9 @@ export default function ImageScreen({
 				uri,
 				FileSystem.documentDirectory + name + '.png'
 			);
-			await saveToMedia(result.uri);
+			// await saveToMedia(result.uri);
+			const assest = await MediaLibrary.createAssetAsync(result.uri);
+			await MediaLibrary.createAlbumAsync('Wallpaper explorer', assest);
 		} catch (error) {
 			setDownloadFailed(true);
 			// console.error(error);
@@ -153,6 +171,28 @@ export default function ImageScreen({
 		bottomSheetRef.current?.open(params);
 	};
 
+	const okayPress = () => {
+		permRequestRef.current?.close();
+
+		const pkg = Constants.manifest?.releaseChannel
+			? Constants.manifest.android?.package
+			: 'host.exp.exponent';
+
+		if (Platform.OS === 'android') {
+			IntentLauncher.startActivityAsync(
+				IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS,
+				{ data: 'package:' + pkg }
+			);
+		} else {
+			Linking.openURL('app-settings:');
+		}
+	};
+
+	const closeDownLoadEvents = () => {
+		setDownloadFailed(false);
+		setIsDownloading(false);
+	};
+
 	return (
 		<HomeContainer
 			style={{
@@ -193,15 +233,36 @@ export default function ImageScreen({
 					containerStyle={{ ...StyleSheet.absoluteFillObject }}
 				/>
 
-				<Image
-					source={{ uri: params.urls.regular }}
-					resizeMode={resizeImage}
-					onLoadStart={() => imageRef.current?.open()}
-					onLoadEnd={() => imageRef.current?.close()}
-					style={{
-						flex: 1,
-					}}
-				/>
+				{resizeImage === 'contain' ? (
+					<ImageZoom
+						// panToMove={false}
+						cropWidth={width}
+						cropHeight={height}
+						imageWidth={width}
+						style={{ flex: 1, zIndex: 10 }}
+						imageHeight={height}
+					>
+						<Image
+							source={{ uri: params.urls.regular }}
+							resizeMode={resizeImage}
+							onLoadStart={() => imageRef.current?.open()}
+							onLoadEnd={() => imageRef.current?.close()}
+							style={{
+								flex: 1,
+							}}
+						/>
+					</ImageZoom>
+				) : (
+					<Image
+						source={{ uri: params.urls.regular }}
+						resizeMode={resizeImage}
+						onLoadStart={() => imageRef.current?.open()}
+						onLoadEnd={() => imageRef.current?.close()}
+						style={{
+							flex: 1,
+						}}
+					/>
+				)}
 
 				<Animated.View style={[styles.sideBarContainer]}>
 					<Pressable
@@ -283,10 +344,10 @@ export default function ImageScreen({
 				<ImageDownLoadEvents
 					isLoading={isDownloading}
 					downloadFailed={downloadFailed}
-					onBtnPress={() =>
-						downloadImages(downloadInfo.current.uri, downloadInfo.current.name)
-					}
+					onBtnPress={downloadImages}
+					close={closeDownLoadEvents}
 				/>
+				<PermRequestModal ref={permRequestRef} okayPress={okayPress} />
 			</>
 		</HomeContainer>
 	);
