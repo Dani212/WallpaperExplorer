@@ -17,13 +17,14 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 // import { createSharedElementStackNavigator } from 'react-navigation-shared-element';
 
 import LinkingConfiguration from './LinkingConfiguration';
+import useColorScheme from 'hooks/useColorScheme';
+import Colors from 'consts/Colors';
+
 import ImagePreviewScreen from 'screens/ImagePreview';
 import NotFoundScreen from 'screens/NotFoundScreen';
-import useColorScheme from 'hooks/useColorScheme';
 import SaveImageScreen from 'screens/SaveImage';
 import ImageScreen from 'screens/ImageScreen';
 import HomeScreen from 'screens/Home';
-import Colors from 'consts/Colors';
 
 import { fetchSaveImageData } from 'reduxStore/reducer';
 import {
@@ -141,6 +142,7 @@ function HomeStackNavigation() {
 			screenOptions={{ headerShown: false }}
 		>
 			<HomeStack.Screen name="HomeScreen" component={HomeScreen} />
+
 			<HomeStack.Screen
 				name="ImagePreviewScreen"
 				component={ImagePreviewScreen}
@@ -150,10 +152,10 @@ function HomeStackNavigation() {
 					if (otherRoute.name === 'HomeScreen' && showing) {
 						return [
 							{
-								id: `item.${id}.photo`,
-								animation: 'fade-in',
-								resize: 'none',
 								align: 'center-center',
+								id: `item.${id}.photo`,
+								animation: 'move',
+								resize: 'none',
 							},
 						];
 					}
