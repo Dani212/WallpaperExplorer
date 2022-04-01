@@ -1,83 +1,54 @@
-import React, { useEffect, useRef, useState } from 'react';
-
-import * as FileSystem from 'expo-file-system';
-
-import * as MediaLibrary from 'expo-media-library';
-
-import * as IntentLauncher from 'expo-intent-launcher';
+import React, { FC, useEffect, useRef, useState } from 'react';
 
 import {
-	View,
-	Share,
-	Platform,
-	FlatList,
 	RefreshControl,
-	NativeScrollEvent,
+	FlatList,
+	Platform,
+	Share,
+	View,
 	NativeSyntheticEvent,
-	Linking,
+	NativeScrollEvent,
 } from 'react-native';
 
 import axios from 'axios';
 
-import Constants from 'expo-constants';
-
-import { height, width } from 'consts';
-
-import { ImageBSRefPorps, ImageLRefProps, ImageResponeProps } from 'types';
-
-import {
-	BottomTabBar,
-	ImageDownLoadEvents,
-	ImageLoading,
-	Text,
-	Button,
-	PermRequestModal,
-} from 'components';
-
-import ImageListItem from 'components/home/ImageListItem';
-
-import { ImageBottomSheet } from 'components/home/ImageBottomSheet';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+
 import {
 	ImageListState,
-	// SavedItemsState,
 	updateImageList,
 	updateSaveImages,
 } from 'reduxStore/reducer';
-import { HomeContainer } from 'components/home';
+import { styles } from 'styles';
+import { height, width } from 'consts';
+import { BottomTabBar, Button, ImageLoading, Text } from 'components';
+import ListItem from 'components/home/ListItem';
+import { HomeStackParamList, ImageLRefProps, ImageResponeProps } from 'types';
 
 type GetDataActionType = 'loadMore' | 'refereshing' | undefined;
 
-export default function HomeScreen() {
+const HomeScreen: FC = () => {
+	const { navigate } = useNavigation<NavigationProp<HomeStackParamList>>();
+
 	const dispatch = useDispatch();
 
 	const imageData = useSelector(ImageListState);
 
-	// const savedItems = useSelector(SavedItemsState);
-
-	const [downloadFailed, setDownloadFailed] = useState(false);
-
-	const [isDownloading, setIsDownloading] = useState(false);
-
-	const [isRefreshing, setIsRefreshing] = useState(false);
-
-	const [errorMsg, setErrorMsg] = useState('');
-
 	const isLoadingMore = useRef(false);
 
-	const downloadInfo = useRef({ uri: '', name: '' });
+	const flatListRef = useRef<FlatList>(null);
 
-	const permRequestRef = useRef<ImageLRefProps>(null);
-
-	const bottomSheetRef = useRef<ImageBSRefPorps>(null);
+	const bottomTabBarRef = useRef<ImageLRefProps>(null);
 
 	const fImageLoadingRef = useRef<ImageLRefProps>(null);
 
 	const imageLoadingRef = useRef<ImageLRefProps>(null);
 
-	const bottomTabBarRef = useRef<ImageLRefProps>(null);
+	const [isRefreshing, setIsRefreshing] = useState(false);
 
-	const flatListRef = useRef<FlatList>(null);
+	const [errorMsg, setErrorMsg] = useState('');
 
 	const page = useRef(1);
 
@@ -133,35 +104,38 @@ export default function HomeScreen() {
 		getData();
 	}, []);
 
-	const saveToMedia = async (uri: string) => {
-		const statuss = await MediaLibrary.requestPermissionsAsync();
+	let offestY = 0;
+	let isDown = false;
+	const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+		const currentOffset = event.nativeEvent.contentOffset.y;
 
-		if (!statuss.granted) {
-			return;
+		const direction =
+			currentOffset > offestY ? (currentOffset <= 0 ? 'up' : 'down') : 'up';
+		offestY = currentOffset;
+
+		if (direction === 'down') {
+			!isDown && bottomTabBarRef.current?.close();
+			isDown = true;
+		} else {
+			isDown && bottomTabBarRef.current?.open();
+			isDown = false;
 		}
-
-		const assest = await MediaLibrary.createAssetAsync(uri);
-		await MediaLibrary.createAlbumAsync('Wallpaper explorer', assest);
 	};
 
-	const downloadImages = async (uri: string, name: string) => {
-		downloadInfo.current = { uri, name };
+	const onRefresh = () => {
+		if (isRefreshing) return;
 
-		try {
-			setIsDownloading(true);
-			setDownloadFailed(false);
+		getData('refereshing');
+	};
 
-			const result = await FileSystem.downloadAsync(
-				uri,
-				FileSystem.documentDirectory + name + '.png'
-			);
-			await saveToMedia(result.uri);
-		} catch (error) {
-			setDownloadFailed(true);
-			// console.error(error);
-		} finally {
-			setIsDownloading(false);
-		}
+	const onEndReached = () => {
+		if (isLoadingMore.current) return;
+
+		getData('loadMore');
+	};
+
+	const onSavePress = (item: ImageResponeProps) => {
+		dispatch(updateSaveImages(item));
 	};
 
 	const onShare = async (url: string) => {
@@ -183,82 +157,20 @@ export default function HomeScreen() {
 		}
 	};
 
-	const onSavePress = (item: ImageResponeProps) => {
-		dispatch(updateSaveImages(item));
-	};
-
-	let offestY = 0;
-	let isDown = false;
-	const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-		const currentOffset = event.nativeEvent.contentOffset.y;
-
-		const direction =
-			currentOffset > offestY ? (currentOffset <= 0 ? 'up' : 'down') : 'up';
-		offestY = currentOffset;
-
-		if (direction === 'down') {
-			!isDown && bottomTabBarRef.current?.close();
-			isDown = true;
-		} else {
-			isDown && bottomTabBarRef.current?.open();
-			isDown = false;
-		}
-	};
-
-	const okayPress = () => {
-		permRequestRef.current?.close();
-
-		const pkg = Constants.manifest?.releaseChannel
-			? Constants.manifest.android?.package
-			: 'host.exp.exponent';
-
-		if (Platform.OS === 'android') {
-			IntentLauncher.startActivityAsync(
-				IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS,
-				{ data: 'package:' + pkg }
-			);
-		} else {
-			Linking.openURL('app-settings:');
-		}
-	};
-
-	const closeDownLoadEvents = () => {
-		setDownloadFailed(false);
-		setIsDownloading(false);
-	};
-
-	const onRefresh = () => {
-		if (isRefreshing) return;
-
-		getData('refereshing');
-	};
-
-	const onEndReached = () => {
-		if (isLoadingMore.current) return;
-
-		getData('loadMore');
+	const containerPressed = (item: ImageResponeProps) => {
+		navigate('ImagePreviewScreen', item);
 	};
 
 	const renderItem = ({ item }: { item: ImageResponeProps }) => {
 		return (
-			<ImageListItem
-				id={item.id}
-				color={item.color}
-				image={item.urls.regular}
-				imageSaved={item.imageIsSaved}
-				profileUri={item.user.portfolio_url}
-				profileImage={item.user.profile_image.small}
-				userName={`${item.user.first_name} ${
-					item.user.last_name ? '' : item.user.last_name
-				}`}
-				onSavePress={() => onSavePress(item)}
-				onSharePress={() => onShare(item.urls.full)}
-				morePress={() => bottomSheetRef.current?.open(item)}
+			<ListItem
+				item={item}
+				onSharePress={onShare}
+				containerPressed={() => containerPressed(item)}
+				onSavePress={(): void => onSavePress(item)}
 			/>
 		);
 	};
-
-	const keyExtractor = (_: unknown, index: number) => String(index);
 
 	const ListEmptyComponent = () => (
 		<View style={{ height, justifyContent: 'center', alignItems: 'center' }}>
@@ -277,8 +189,18 @@ export default function HomeScreen() {
 	);
 
 	const ListFooterComponent = () => (
-		<View style={{ height, justifyContent: 'center', alignItems: 'center' }}>
-			<ImageLoading ref={fImageLoadingRef} containerStyle={{ height, width }} />
+		<View
+			style={{
+				height: height * 0.2,
+				justifyContent: 'center',
+				alignItems: 'center',
+			}}
+		>
+			<ImageLoading
+				ref={fImageLoadingRef}
+				containerStyle={{ height: height * 0.2, width }}
+			/>
+
 			{errorMsg !== '' && (
 				<>
 					<Text>An error occur</Text>
@@ -293,70 +215,55 @@ export default function HomeScreen() {
 		</View>
 	);
 
+	const keyExtractor = (_: unknown, index: number) => String(index);
+
 	const getItemLayout = (_: unknown, index: number) => ({
-		length: height,
-		offset: height * index,
+		length: width * 0.9 + 4,
+		offset: width * 0.9 + 4 * index,
 		index,
 	});
 
 	return (
-		<HomeContainer>
-			<>
-				<ImageLoading
-					ref={imageLoadingRef}
-					containerStyle={{ height, width }}
-				/>
+		<SafeAreaView style={styles.container}>
+			<ImageLoading ref={imageLoadingRef} containerStyle={{ height, width }} />
 
-				<FlatList
-					// horizontal
-					pagingEnabled
-					data={imageData}
-					ref={flatListRef}
-					onScroll={onScroll}
-					disableVirtualization
-					renderItem={renderItem}
-					onEndReached={onEndReached}
-					keyExtractor={keyExtractor}
-					onEndReachedThreshold={0.5}
-					getItemLayout={getItemLayout}
-					contentOffset={{ y: 0, x: 0 }}
-					scrollEnabled={!isDownloading}
-					style={{ flex: 1, height, width }}
-					ListEmptyComponent={ListEmptyComponent}
-					ListFooterComponent={ListFooterComponent}
-					extraData={[imageData]}
-					refreshControl={
-						<RefreshControl
-							enabled={imageData.length > 0}
-							refreshing={isRefreshing}
-							onRefresh={onRefresh}
-						/>
-					}
-				/>
+			<FlatList
+				data={imageData}
+				ref={flatListRef}
+				onScroll={onScroll}
+				disableVirtualization
+				renderItem={renderItem}
+				onEndReached={onEndReached}
+				keyExtractor={keyExtractor}
+				onEndReachedThreshold={0.5}
+				getItemLayout={getItemLayout}
+				decelerationRate={0.94}
+				style={{ flex: 1, marginTop: 12, alignSelf: 'center' }}
+				ListEmptyComponent={ListEmptyComponent}
+				ListFooterComponent={ListFooterComponent}
+				removeClippedSubviews={false}
+				showsVerticalScrollIndicator={false}
+				extraData={[imageData]}
+				refreshControl={
+					<RefreshControl
+						enabled={imageData.length > 0}
+						refreshing={isRefreshing}
+						onRefresh={onRefresh}
+					/>
+				}
+			/>
 
-				<BottomTabBar
-					ref={bottomTabBarRef}
-					homePressed={() =>
-						flatListRef.current?.scrollToOffset({
-							offset: 0,
-							animated: true,
-						})
-					}
-				/>
-
-				<ImageBottomSheet ref={bottomSheetRef} downLoadPress={downloadImages} />
-
-				<ImageDownLoadEvents
-					isLoading={isDownloading}
-					close={closeDownLoadEvents}
-					downloadFailed={downloadFailed}
-					onBtnPress={() =>
-						downloadImages(downloadInfo.current.uri, downloadInfo.current.name)
-					}
-				/>
-
-				<PermRequestModal ref={permRequestRef} okayPress={okayPress} />
-			</>
-		</HomeContainer>
+			<BottomTabBar
+				ref={bottomTabBarRef}
+				homePressed={() =>
+					flatListRef.current?.scrollToOffset({
+						offset: 0,
+						animated: true,
+					})
+				}
+			/>
+		</SafeAreaView>
 	);
-}
+};
+
+export default HomeScreen;
