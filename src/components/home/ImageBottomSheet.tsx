@@ -122,7 +122,8 @@ export const ImageBottomSheet = forwardRef<ImageBSRefPorps, Props>(
 								<Text
 									style={{
 										borderRadius: 16,
-										backgroundColor: 'rgba(100,100,100,1)',
+
+										backgroundColor: pColor(dark).blurBg,
 									}}
 								>
 									{' View more on unsplash > '}
