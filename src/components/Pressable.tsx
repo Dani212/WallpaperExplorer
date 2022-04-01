@@ -41,8 +41,6 @@ export const Pressable: FC<Props> = ({
 							backgroundColor: pressed ? pColor(dark).pressed : undefined,
 						},
 					}),
-
-					paddingVertical: 10,
 				},
 			]}
 			{...otherProps}
