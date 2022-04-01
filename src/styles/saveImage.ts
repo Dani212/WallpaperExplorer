@@ -4,7 +4,7 @@ import { height, width } from 'consts/Layout';
 
 export const savedStyles = StyleSheet.create({
 	siItemsContainer: {
-		height: height * 0.4,
+		height: height * 0.32,
 		width: width * 0.48,
 		marginBottom: 4,
 	},
