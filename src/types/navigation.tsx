@@ -33,10 +33,7 @@ export type RootTabParamList = {
 
 export type HomeStackParamList = {
 	HomeScreen: undefined;
-	ImagePreviewScreen: {
-		id: string;
-		image: string;
-	};
+	ImagePreviewScreen: ImageResponeProps;
 };
 
 export type RootTabScreenProps<Screen extends keyof RootTabParamList> =
