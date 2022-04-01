@@ -114,16 +114,16 @@ const ImagePreview = () => {
 		const uri: string = params.links.download;
 		const name: string = params.id;
 
-		const status = await MediaLibrary.requestPermissionsAsync();
-
-		if (!status.granted) {
-			permRequestRef.current?.open();
-			return;
-		}
-
-		downloadInfo.current = { uri, name };
-
 		try {
+			const status = await MediaLibrary.requestPermissionsAsync();
+
+			if (!status.granted) {
+				permRequestRef.current?.open();
+				return;
+			}
+
+			downloadInfo.current = { uri, name };
+
 			setIsDownloading(true);
 			setDownloadFailed(false);
 
@@ -133,6 +133,7 @@ const ImagePreview = () => {
 			);
 			// await saveToMedia(result.uri);
 			const assest = await MediaLibrary.createAssetAsync(result.uri);
+
 			await MediaLibrary.createAlbumAsync('Wallpaper explorer', assest);
 		} catch (error) {
 			setDownloadFailed(true);
