@@ -1,12 +1,11 @@
 import React, { FC } from 'react';
 
 import { useTheme } from '@react-navigation/native';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Pressable } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { Text } from 'components/Text';
 
-import { Pressable } from 'components/Pressable';
 import { Button } from 'components/Button';
 import { pColor } from 'utils';
 import { width } from 'consts';
@@ -38,7 +37,10 @@ export const ImageDownLoadEvents: FC<Props> = ({
 				position: 'absolute',
 			}}
 		>
-			<Pressable style={{ ...StyleSheet.absoluteFillObject }} onPress={close} />
+			<Pressable
+				style={{ ...StyleSheet.absoluteFillObject }}
+				onPress={downloadFailed ? close : undefined}
+			/>
 
 			{isLoading ? (
 				<View
