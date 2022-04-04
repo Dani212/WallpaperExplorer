@@ -9,7 +9,7 @@ import { pColor } from 'utils';
 interface Props extends TextProps {
 	// style: TextStyle;
 	btnColor?: boolean;
-	textSize?: 'small' | 'normal' | 'large' | 'xl' | 'xxl' | 'xxxl' | undefined;
+	textSize?: keyof typeof textSizes; // 'small' | 'normal' | 'large' | 'xl' | 'xxl' | 'xxxl' | undefined;
 }
 
 export const Text: FC<Props> = ({
