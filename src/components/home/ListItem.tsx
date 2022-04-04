@@ -16,7 +16,7 @@ type Props = {
 	item: ImageResponeProps;
 	onSharePress: (link: string) => void;
 	onSavePress: (saved: boolean) => void;
-	containerPressed: () => void;
+	containerPressed: (saved: boolean) => void;
 };
 
 const ListItem: FC<Props> = ({
@@ -66,9 +66,14 @@ const ListItem: FC<Props> = ({
 		onSharePress(full);
 	};
 
+	const imageContainerPressed = () => {
+		containerPressed(saved);
+		//
+	};
+
 	return (
 		<TouchableOpacity
-			onPress={containerPressed}
+			onPress={imageContainerPressed}
 			activeOpacity={0.7}
 			style={{
 				zIndex: 100,

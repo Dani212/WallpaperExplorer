@@ -157,8 +157,8 @@ const HomeScreen: FC = () => {
 		}
 	};
 
-	const containerPressed = (item: ImageResponeProps) => {
-		navigate('ImagePreviewScreen', item);
+	const containerPressed = (item: ImageResponeProps, saved: boolean) => {
+		navigate('ImagePreviewScreen', { ...item, imageIsSaved: saved });
 	};
 
 	const renderItem = ({ item }: { item: ImageResponeProps }) => {
@@ -166,7 +166,7 @@ const HomeScreen: FC = () => {
 			<ListItem
 				item={item}
 				onSharePress={onShare}
-				containerPressed={() => containerPressed(item)}
+				containerPressed={(saved) => containerPressed(item, saved)}
 				onSavePress={(): void => onSavePress(item)}
 			/>
 		);
